@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Learner Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Learner Issue Tracker</h1>
+    <p>A collaborative platform for students and staff to track, manage, and resolve learning issues together.</p>
+    <div>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-light me-2">Get Started</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light">Login</a>
+    </div>
+</div>
+
+<div class="row mt-5 text-center">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5>Raise Issues</h5>
+            <p class="text-muted">Students can raise learning issues and join existing ones relevant to them.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5>Real-Time Discussion</h5>
+            <p class="text-muted">Chat with tutors and fellow students in real-time on each issue.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5>Smart Detection</h5>
+            <p class="text-muted">AI-powered duplicate detection suggests existing issues before creating new ones.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}{{ board['name'] }} - Learner Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="mt-3 mb-3">
+    <a href="{{ url_for('main.dashboard') }}" class="text-decoration-none">&larr; Back to Dashboard</a>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge bg-primary fs-6 mb-2">{{ board['course_code'] }}</span>
+        <h2 class="mb-1">{{ board['name'] }}</h2>
+        <p class="text-muted mb-0">{{ board['description'] or 'No description provided' }}</p>
+    </div>
+    {% if current_user.role == 'student' %}
+        <a href="{{ url_for('issues.create_issue_route', board_id=board['id']) }}" class="btn btn-primary btn-lg">+ New Issue</a>
+    {% endif %}
+</div>
+
+<!-- Invite Members (Lecturer only) -->
+{% if current_user.role == 'lecturer' and board['created_by'] == current_user.id %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="section-header">Invite Members</h5>
+        <form method="POST" action="{{ url_for('boards.invite_member', board_id=board['id']) }}" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="user@example.com" required>
+            </div>
+            <div class="col-md-4">
+                <label for="role_on_board" class="form-label">Role on Board</label>
+                <select class="form-select" id="role_on_board" name="role_on_board" required>
+                    <option value="student">Student</option>
+                    <option value="tutor">Tutor</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100">Invite</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Issues (main column) -->
+    <div class="col-md-8">
+        <h5 class="section-header">Issues ({{ issues|length }})</h5>
+        {% if issues %}
+            {% for issue in issues %}
+                <div class="issue-item {{ 'resolved' if issue['status'] == 'resolved' }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if issue['is_flagged'] %}
+                                <a href="{{ url_for('issues.view_issue', issue_id=issue['id']) }}">
+                                    <span class="flagged-content" style="filter: blur(5px); transition: filter 0.3s; cursor: pointer;" onclick="event.preventDefault(); this.style.filter='none'; this.nextElementSibling.style.display='none'">{{ issue['title'] }}</span>
+                                    <span class="badge bg-danger ms-2" style="font-size: 0.70rem; transform: translateY(-2px)">Flagged</span>
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('issues.view_issue', issue_id=issue['id']) }}">{{ issue['title'] }}</a>
+                            {% endif %}
+                            <br><small class="text-muted">Raised by {{ issue['creator_name'] }} — {{ issue['member_count'] }} member(s)</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-{{ 'success' if issue['status'] == 'open' else 'secondary' }}">{{ issue['status'] | capitalize }}</span>
+                            {% if current_user.role in ('lecturer', 'tutor') or current_user.id == issue['created_by'] %}
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" title="Delete Issue" data-bs-toggle="modal" data-bs-target="#deleteIssueModal{{ issue['id'] }}">
+                                &times;
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if current_user.role in ('lecturer', 'tutor') or current_user.id == issue['created_by'] %}
+                <!-- Delete Issue Modal -->
+                <div class="modal fade" id="deleteIssueModal{{ issue['id'] }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content border-danger text-start">
+                            <div class="modal-header bg-danger text-white border-bottom-0">
+                                <h5 class="modal-title">⚠️ Delete Issue</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-dark h6 fw-normal lh-base">
+                                Are you sure you want to delete the issue: <strong>{{ issue['title'] }}</strong>?
+                                <br><br>
+                                This will erase all chat messages inside this issue.
+                            </div>
+                            <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form method="POST" action="{{ url_for('issues.delete_issue_route', issue_id=issue['id']) }}" class="m-0 p-0">
+                                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p class="fs-1 mb-2">💬</p>
+                <h5>No issues raised yet</h5>
+                {% if current_user.role == 'student' %}
+                    <p>Be the first to raise a learning issue on this board.</p>
+                    <a href="{{ url_for('issues.create_issue_route', board_id=board['id']) }}" class="btn btn-primary">Create Issue</a>
+                {% else %}
+                    <p>No students have raised any issues yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Members (sidebar) -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="section-header">Members ({{ members|length }})</h5>
+                {% if members %}
+                    {% for member in members %}
+                        <div class="member-item d-flex justify-content-between align-items-center">
+                            <span>{{ member['username'] }}</span>
+                            <div>
+                                <span class="badge bg-{{ 'info' if member['role_on_board'] == 'tutor' else 'success' }}">{{ member['role_on_board'] | capitalize }}</span>
+                                {% if current_user.role == 'lecturer' and board['created_by'] == current_user.id %}
+                                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 ms-1" title="Remove member" data-bs-toggle="modal" data-bs-target="#removeModal{{ member['id'] }}">&times;</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No members yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.role == 'lecturer' and board['created_by'] == current_user.id %}
+    {% for member in members %}
+        <!-- Remove Member Modal -->
+        <div class="modal fade" id="removeModal{{ member['id'] }}" tabindex="-1" aria-labelledby="removeModalLabel{{ member['id'] }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content border-danger text-start">
+                    <div class="modal-header bg-danger text-white border-bottom-0">
+                        <h5 class="modal-title" id="removeModalLabel{{ member['id'] }}">⚠️ Confirm Member Removal</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-dark h6 fw-normal lh-base">
+                        Are you absolutely sure you want to remove <strong>{{ member['username'] }}</strong> from the board <strong>{{ board['name'] }}</strong>? 
+                        <br><br>
+                        They will lose access to all issues and discussions.
+                    </div>
+                    <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" action="{{ url_for('boards.remove_member', board_id=board['id'], user_id=member['id']) }}" class="m-0 p-0">
+                            <button type="submit" class="btn btn-danger">Yes, Remove Member</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

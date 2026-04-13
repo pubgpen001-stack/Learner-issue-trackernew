@@ -1,0 +1,406 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── CSS Custom Properties & Theming ── */
+:root {
+    --app-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --app-bg: #f8fafc;
+    --app-fg: #0f172a;
+    --app-muted: #64748b;
+    --app-card-bg: #ffffff;
+    --app-card-border: rgba(0, 0, 0, 0.05);
+    
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-ring: rgba(79, 70, 229, 0.3);
+    
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #0ea5e9;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-bs-theme="dark"] {
+    --app-bg: #0f172a;
+    --app-fg: #f8fafc;
+    --app-muted: #94a3b8;
+    --app-card-bg: #1e293b;
+    --app-card-border: rgba(255, 255, 255, 0.05);
+    
+    --primary: #6366f1;
+    --primary-hover: #818cf8;
+    
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-bs-theme="light"]) {
+        --app-bg: #0f172a;
+        --app-fg: #f8fafc;
+        --app-muted: #94a3b8;
+        --app-card-bg: #1e293b;
+        --app-card-border: rgba(255, 255, 255, 0.05);
+        --primary: #6366f1;
+        --primary-hover: #818cf8;
+        --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* ── Global ── */
+html {
+    min-height: 100%;
+}
+
+body {
+    background-color: var(--app-bg);
+    color: var(--app-fg);
+    font-family: var(--app-font);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.015em;
+    margin-bottom: 70px;
+    transition: background-color var(--transition-base), color var(--transition-base);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* ── Accessibility ── */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary);
+    color: white;
+    padding: 8px;
+    z-index: 10000;
+    transition: top var(--transition-fast);
+}
+.skip-link:focus {
+    top: 0;
+    outline: none;
+    box-shadow: 0 0 0 4px var(--primary-ring);
+}
+
+/* ── Focus Rings ── */
+:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-ring);
+    border-radius: 4px;
+}
+
+/* ── Typography fixes ── */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--app-fg);
+}
+
+.text-muted {
+    color: var(--app-muted) !important;
+}
+
+/* ── Footer ── */
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border-top: 1px solid var(--app-card-border);
+    color: var(--app-muted);
+}
+
+/* ── Navbar ── */
+.navbar {
+    backdrop-filter: blur(12px);
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+/* ── Cards & Glassmorphism ── */
+.card {
+    background-color: var(--app-card-bg);
+    border: 1px solid var(--app-card-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.card-body {
+    padding: 1.75rem;
+}
+
+/* ── Hero section (home page) ── */
+.hero {
+    background: linear-gradient(135deg, #1e1b4b 0%, var(--primary) 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 5rem 2rem;
+    margin-top: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+.hero h1 {
+    font-weight: 800;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+.hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 2.5rem auto;
+}
+.hero .btn {
+    padding: 0.85rem 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+}
+
+/* ── Dashboard stats ── */
+.stat-card {
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    color: white;
+    box-shadow: var(--shadow-md);
+    transition: transform var(--transition-fast);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+.stat-card h3 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    color: white;
+}
+.stat-bg-boards { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+.stat-bg-issues { background: linear-gradient(135deg, #db2777, #e11d48); }
+.stat-bg-members { background: linear-gradient(135deg, #0284c7, #0ea5e9); }
+
+/* ── Board cards ── */
+.board-card .course-code {
+    display: inline-block;
+    background-color: rgba(79, 70, 229, 0.1);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+/* ── Issue list ── */
+.issue-item {
+    border-left: 4px solid var(--success);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+    background: var(--app-card-bg);
+    border-radius: 0 12px 12px 0;
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+.issue-item:hover {
+    background-color: rgba(0,0,0,0.02);
+    transform: translateX(4px);
+}
+[data-bs-theme="dark"] .issue-item:hover { 
+    background-color: rgba(255,255,255,0.02); 
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-bs-theme="light"]) .issue-item:hover { 
+        background-color: rgba(255,255,255,0.02); 
+    }
+}
+.issue-item.resolved {
+    border-left-color: var(--app-muted);
+}
+.issue-item a {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--app-fg);
+}
+
+/* ── Chat ── */
+#chat-messages {
+    background: var(--app-bg);
+    border-radius: 12px !important;
+    border: 1px solid var(--app-card-border) !important;
+    padding: 1rem;
+}
+.chat-bubble {
+    background: var(--app-card-bg);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--app-card-border);
+}
+.chat-bubble strong {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* ── Badges ── */
+.badge {
+    font-weight: 600;
+    padding: 0.5em 0.85em;
+    border-radius: 8px;
+    letter-spacing: 0.02em;
+}
+
+/* ── Forms ── */
+.form-control, .form-select {
+    background-color: var(--app-bg);
+    border: 1px solid var(--app-card-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--app-fg);
+    transition: all var(--transition-fast);
+}
+.form-control:focus, .form-select:focus {
+    background-color: var(--app-card-bg);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-ring);
+}
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--app-fg);
+}
+
+/* ── Buttons ── */
+.btn {
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.6rem 1.25rem;
+    transition: all var(--transition-fast);
+}
+.btn-primary {
+    background: var(--primary);
+    border: 1px solid var(--primary);
+    color: white;
+}
+.btn-primary:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ── Section headers ── */
+.section-header {
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+    color: var(--app-fg);
+}
+
+/* ── Empty states ── */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--app-card-bg);
+    border-radius: 16px;
+    border: 1px dashed var(--app-muted);
+}
+.empty-state p.fs-1 {
+    font-size: 3.5rem !important;
+    opacity: 0.5;
+    margin-bottom: 1.5rem;
+}
+.empty-state h5 {
+    font-weight: 700;
+}
+
+/* ── Member list ── */
+.member-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--app-card-border);
+    transition: background-color var(--transition-fast);
+}
+.member-item:hover {
+    background-color: var(--app-bg);
+}
+.member-item:last-child {
+    border-bottom: none;
+}
+
+/* ── Alert improvements ── */
+.toast-container .toast {
+    background-color: var(--app-card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--app-card-border);
+}
+
+/* ── Similar issues warning ── */
+.similar-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid var(--warning);
+    border-radius: 12px;
+    padding: 1.25rem;
+    color: var(--app-fg);
+}
+
+/* ── Theme Toggle Button ── */
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+.theme-icon {
+    pointer-events: none;
+}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Learner Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+    <div>
+        <h2 class="mb-1">Welcome back, {{ current_user.username }}</h2>
+        <span class="badge bg-{% if current_user.role == 'lecturer' %}primary{% elif current_user.role == 'tutor' %}info{% else %}success{% endif %} fs-6">{{ current_user.role | capitalize }}</span>
+    </div>
+    {% if current_user.role == 'lecturer' %}
+        <a href="{{ url_for('boards.create_board_route') }}" class="btn btn-primary btn-lg">+ Create Board</a>
+    {% endif %}
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-bg-boards">
+            <h3>{{ boards|length }}</h3>
+            <p>{% if current_user.role == 'lecturer' %}Boards Created{% else %}Boards Joined{% endif %}</p>
+        </div>
+    </div>
+</div>
+
+<h4 class="section-header">Your Boards</h4>
+
+{% if boards %}
+    <div class="row">
+        {% for board in boards %}
+            <div class="col-md-4 mb-3">
+                <div class="card board-card">
+                    <div class="card-body">
+                        <span class="course-code">{{ board['course_code'] }}</span>
+                        <h5 class="card-title mt-2">{{ board['name'] }}</h5>
+                        <p class="card-text text-muted">{{ board['description'] or 'No description provided' }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('boards.view_board', board_id=board['id']) }}" class="btn btn-outline-primary btn-sm">View Board</a>
+                            {% if current_user.id == board['created_by'] %}
+                            <button type="button" class="btn btn-outline-danger btn-sm px-2 py-0" data-bs-toggle="modal" data-bs-target="#deleteBoardModal{{ board['id'] }}" title="Delete Board">
+                                <span aria-hidden="true">&times; Delete</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if current_user.id == board['created_by'] %}
+            <div class="modal fade" id="deleteBoardModal{{ board['id'] }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content border-danger text-start">
+                        <div class="modal-header bg-danger text-white border-bottom-0">
+                            <h5 class="modal-title">⚠️ Delete Board: {{ board['name'] }}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-dark h6 fw-normal lh-base">
+                            Are you absolutely sure you want to permanently delete this board?
+                            <br><br>
+                            This will destroy all associated issues, chat transcripts, and members.
+                        </div>
+                        <div class="modal-footer border-top-0 bg-light rounded-bottom">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="POST" action="{{ url_for('boards.delete_board_route', board_id=board['id']) }}" class="m-0 p-0">
+                                <button type="submit" class="btn btn-danger">Yes, Permanent Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p class="fs-1 mb-2">📋</p>
+        {% if current_user.role == 'lecturer' %}
+            <h5>No boards yet</h5>
+            <p>Create your first tracker board to start managing learning issues.</p>
+            <a href="{{ url_for('boards.create_board_route') }}" class="btn btn-primary">Create Board</a>
+        {% else %}
+            <h5>No boards yet</h5>
+            <p>You haven't been added to any boards. Ask your lecturer for an invite.</p>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

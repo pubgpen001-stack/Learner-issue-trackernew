@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Create Board - Learner Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Create Tracker Board</h2>
+                <a href="{{ url_for('main.dashboard') }}" class="text-decoration-none d-block mb-3">&larr; Back to Dashboard</a>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Board Name</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Python Programming Issues" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="course_code" class="form-label">Course Code</label>
+                        <input type="text" class="form-control" id="course_code" name="course_code" placeholder="e.g. KV6013" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (optional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Brief description of this board"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Create Board</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

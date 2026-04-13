@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}{{ issue['title'] }} - Learner Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="mt-3 mb-3">
+    <a href="{{ url_for('boards.view_board', board_id=issue['board_id']) }}" class="text-decoration-none">&larr; Back to
+        {{ issue['board_name'] }}</a>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">{{ issue['title'] }}</h2>
+        <p class="text-muted mb-0">Raised by {{ issue['creator_name'] }} — <span
+                class="badge bg-{{ 'success' if issue['status'] == 'open' else 'secondary' }}">{{ issue['status'] |
+                capitalize }}</span></p>
+    </div>
+    {% if not is_member and current_user.role != 'lecturer' %}
+    <form method="POST" action="{{ url_for('issues.join_issue_route', issue_id=issue['id']) }}">
+        <button type="submit" class="btn btn-success btn-lg">+ Join Issue</button>
+    </form>
+    {% elif is_member %}
+    <span class="badge bg-primary fs-6">Joined</span>
+    {% endif %}
+</div>
+
+{% if issue['description'] %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="text-muted mb-2">Description</h6>
+        {% if issue['is_flagged'] %}
+        <p class="mb-0 mt-1">
+            <span class="flagged-content" style="filter: blur(5px); transition: filter 0.3s; cursor: pointer;"
+                onclick="this.style.filter='none'; this.nextElementSibling.style.display='none'">{{ issue['description']
+                }}</span>
+            <span class="badge bg-danger ms-2" style="font-size: 0.7rem;">Hidden: Flagged Review [Click to
+                Reveal]</span>
+        </p>
+        {% else %}
+        <p class="mb-0">{{ issue['description'] }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Chat (main column) -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="section-header">Discussion</h5>
+
+                <div id="chat-messages" style="height: 400px; overflow-y: auto; padding: 10px; margin-bottom: 10px;"
+                    aria-live="polite" aria-atomic="false" role="log">
+                    {% for msg in messages %}
+                    <div class="chat-bubble">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ msg['username'] }}</strong>
+                                <small class="text-muted ms-2">{{ msg['sent_at'] }}</small>
+                            </div>
+                            {% if current_user.role in ('lecturer', 'tutor') or current_user.id == msg['user_id'] %}
+                            <form method="POST"
+                                action="{{ url_for('issues.delete_message_route', message_id=msg['id']) }}"
+                                class="m-0 p-0"
+                                onsubmit="return confirm('Are you sure you want to permanently delete this message?');">
+                                <button type="submit"
+                                    class="btn btn-sm text-danger p-0 m-0 border-0 bg-transparent fs-5 lh-1"
+                                    style="opacity: 0.6;" onmouseover="this.style.opacity=1"
+                                    onmouseout="this.style.opacity=0.6" title="Delete Message">&times;</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% if msg['is_flagged'] %}
+                        <p class="mb-0 mt-1">
+                            <span class="flagged-content"
+                                style="filter: blur(5px); transition: filter 0.3s; cursor: pointer;"
+                                onclick="this.style.filter='none'; this.nextElementSibling.style.display='none'">{{
+                                msg['content'] }}</span>
+                            <span class="badge bg-danger ms-2" style="font-size: 0.7rem;">Hidden: Flagged Review [Click
+                                to Reveal]</span>
+                        </p>
+                        {% else %}
+                        <p class="mb-0 mt-1">{{ msg['content'] }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% if not messages %}
+                    <div class="empty-state" id="no-messages">
+                        <p class="fs-1 mb-2">💬</p>
+                        <p>No messages yet. Start the conversation.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if is_member or current_user.role == 'lecturer' %}
+                <div class="input-group">
+                    <input type="text" id="message-input" class="form-control form-control-lg"
+                        placeholder="Type a message...">
+                    <button id="send-btn" class="btn btn-primary">Send</button>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Join this issue to participate in the discussion.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Members (sidebar) -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="section-header">Members ({{ members|length }})</h5>
+                {% for member in members %}
+                <div class="member-item d-flex justify-content-between align-items-center">
+                    <span>{{ member['username'] }}</span>
+                    <span class="badge bg-{{ 'info' if member['role'] == 'tutor' else 'success' }}">{{ member['role'] |
+                        capitalize }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

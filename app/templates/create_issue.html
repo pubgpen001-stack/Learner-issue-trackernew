@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Create Issue - Learner Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Create New Issue</h2>
+                <p class="text-muted text-center">Board: {{ board['name'] }} ({{ board['course_code'] }})</p>
+
+                {% if similar_issues %}
+                    <div class="alert alert-warning">
+                        <h5>Similar issues found!</h5>
+                        <p>The following existing issues look similar to yours. Consider joining one instead of creating a duplicate.</p>
+                    </div>
+
+                    <div class="list-group mb-4">
+                        {% for issue in similar_issues %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ issue['title'] }}</strong>
+                                    <br><small class="text-muted">{{ issue['member_count'] }} member(s) — {{ issue['score'] }}% similar</small>
+                                    {% if issue['description'] %}
+                                        <br><small>{{ issue['description'][:100] }}{% if issue['description']|length > 100 %}...{% endif %}</small>
+                                    {% endif %}
+                                </div>
+                                <a href="{{ url_for('issues.view_issue', issue_id=issue['id']) }}" class="btn btn-outline-success btn-sm">Join This Instead</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <form method="POST">
+                        <input type="hidden" name="title" value="{{ title }}">
+                        <input type="hidden" name="description" value="{{ description }}">
+                        <input type="hidden" name="confirmed" value="yes">
+                        <button type="submit" class="btn btn-secondary w-100 mb-2">Create Anyway</button>
+                    </form>
+                    <a href="{{ url_for('boards.view_board', board_id=board['id']) }}" class="btn btn-link w-100">Back to Board</a>
+                {% else %}
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Issue Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ title }}" placeholder="e.g. Struggling with Python loops" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Describe the issue in more detail">{{ description }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Create Issue</button>
+                    </form>
+                    <a href="{{ url_for('boards.view_board', board_id=board['id']) }}" class="btn btn-link w-100 mt-2">Back to Board</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
